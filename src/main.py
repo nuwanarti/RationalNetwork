@@ -107,6 +107,17 @@ optimizer = keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 # Instantiate a loss function.
 # loss_fn = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 loss_fn = keras.losses.BinaryCrossentropy(from_logits=True)
+
+def custom_loss(real, generated):
+#   real_loss = loss_obj(tf.ones_like(real), real)
+
+#   generated_loss = loss_obj(tf.zeros_like(generated), generated)
+
+#   total_disc_loss = real_loss + generated_loss
+
+#   return total_disc_loss * 0.5
+    return loss_fn(real, generated)
+
 @tf.function
 def train_step(x_batch, y_batch):
     with tf.GradientTape() as tape:
@@ -118,7 +129,8 @@ def train_step(x_batch, y_batch):
         logits = model(x_batch, training=True)  # Logits for this minibatch
 
         # Compute the loss value for this minibatch.
-        loss_value = loss_fn(y_batch, logits)
+        # loss_value = loss_fn(y_batch, logits) 
+        loss_value = custom_loss(y_batch, logits)
 
     # Use the gradient tape to automatically retrieve
     # the gradients of the trainable variables with respect to the loss.
