@@ -38,6 +38,7 @@ PATIENCE = 50
 EPOCHS = 100
 VERBOSITY = 1
 
+# define your coefficients here
 alpha_initializer = [1.1915, 1.5957, 0.5, 0.0218]
 beta_initializer = [2.383, 0.0, 1.0]
 # %%
