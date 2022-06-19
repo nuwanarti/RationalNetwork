@@ -88,7 +88,10 @@ model = CustomModel()
 model.summary()
 # %%
 # split the dataset into partitions
-targets = to_categorical(df['label'].values).astype(np.int32)
+# targets = to_categorical(df['label'].values).astype(np.int32)
+targets = df['label'].values
+# %%
+# df['label']
 
 # %%
 x_train, x, y_train, y = train_test_split(df[['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)']].values, targets, test_size=0.3, random_state=42)
@@ -97,6 +100,11 @@ x_test, x_val, y_test, y_val = train_test_split(x, y, test_size=0.3, random_stat
 # converting keras dataset into tensors ( not mandatory )
 trainData = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 valData = tf.data.Dataset.from_tensor_slices((x_val, y_val))
+# %%
+# getting only the values for the test set, => to avoid conflicts
+# x_test = x_test.values
+# y_test = y_test.values
+# %%
 
 trainData = trainData.shuffle(SHUFFLE_BUFFER_SIZE).batch(BATCH_SIZE)
 valData = valData.batch(BATCH_SIZE)
@@ -106,8 +114,8 @@ print(x_val.shape, y_val.shape)
 # %% 
 optimizer = keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 # Instantiate a loss function.
-# loss_fn = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-loss_fn = keras.losses.BinaryCrossentropy(from_logits=True)
+loss_fn = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+# loss_fn = keras.losses.BinaryCrossentropy(from_logits=True)
 
 def custom_loss(real, generated):
 #   real_loss = loss_obj(tf.ones_like(real), real)
@@ -119,7 +127,7 @@ def custom_loss(real, generated):
 #   return total_disc_loss * 0.5
     return loss_fn(real, generated)
 
-@tf.function
+# @tf.function
 def train_step(x_batch, y_batch):
     with tf.GradientTape() as tape:
 
@@ -235,9 +243,12 @@ for epoch in range(EPOCHS):
 # %%
 # reporting auc and acc for test set
 pred = model.predict(x_test)
+# %%
 pred_y = to_categorical(pred.argmax(1), num_classes=3).astype(np.int32)
+#%%
 auc = 100*roc_auc_score(y_test, pred_y , average='weighted', multi_class='ovo')
-acc = 100*accuracy_score(y_test, pred_y)
+# %%
+acc = 100*accuracy_score(y_test, pred_y.argmax(1))
 print('Test accuracy: {:.5f}, AUC {:.5f}\n'.format( acc, auc))
 # %%
 # model.save('models/model_acc_100.h5')
